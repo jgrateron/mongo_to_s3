@@ -1,8 +1,6 @@
 package com.nubefact.ose.entity.mongo;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Base64;
 import java.util.Date;
 import java.util.zip.ZipEntry;
@@ -10,9 +8,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.nubefact.ose.data.ContentFile;
-import com.nubefact.ose.utils.OseUtils;
 
 public class MongoCdr {
    
@@ -89,17 +84,4 @@ public class MongoCdr {
 			}
 		}
 	}
-	
-	public InputStream getInputStream() throws IOException
-	{
-		if (xml.isEmpty()) {
-			ContentFile contentFile = new ContentFile();
-			contentFile.setContent(content);
-			return contentFile.getContentStream();
-		}
-		else
-		{
-			return OseUtils.strToInputStream(xml,"UTF-8");
-		}
-	}	
 }

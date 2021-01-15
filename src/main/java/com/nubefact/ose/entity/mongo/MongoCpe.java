@@ -19,7 +19,6 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import com.nubefact.ose.data.ContentFile;
 import com.nubefact.ose.entity.Ticket;
 import com.nubefact.ose.utils.OseUtils;
 import com.nubefact.parametros.EstatusEnvioSunat;
@@ -105,48 +104,6 @@ public class MongoCpe {
 			}			
 		}
 	}
-	/**
-	 * 
-	 */
-	public byte[] getCpeCdrZip() 
-	{
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Generando ZIP para Bajada a Sunat ");
-		}
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		ZipOutputStream zipOutputStream = new ZipOutputStream(byteArrayOutputStream);
-		try 
-		{
-			String nombreCpe = this.nombreDoc;
-			if(this.nombreDoc.indexOf(".xml") == -1){
-				nombreCpe = this.nombreDoc +".xml";
-			}
-
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Nombre del CPE " + nombreCpe);
-			}
-			try (InputStream in = getInputStream()){
-				ByteArrayOutputStream cpe = OseUtils.InputStreamToOutputStream(in);
-				ZipEntry zipEntry = new ZipEntry(nombreCpe);
-				zipOutputStream.putNextEntry(zipEntry);
-				zipOutputStream.write(cpe.toByteArray());
-			}
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Nombre del CDR " + this.mongoCdr.getFilename());
-			}
-			try (InputStream in = this.mongoCdr.getInputStream()){
-				ByteArrayOutputStream cdr = OseUtils.InputStreamToOutputStream(in);
-				ZipEntry zipEntry = new ZipEntry(this.mongoCdr.getFilename());
-				zipOutputStream.putNextEntry(zipEntry);
-				zipOutputStream.write(cdr.toByteArray());					
-			}
-			zipOutputStream.closeEntry();
-			zipOutputStream.close();
-		} catch (Exception e) {
-			LOGGER.error("Generando ZIP para Ticket: " + this.idTicket +" Mensaje: " + e.getMessage());
-		}
-		return byteArrayOutputStream.toByteArray();
-	}
 
 	public MongoCdr getMongoCdr() {
 		return mongoCdr;
@@ -193,24 +150,6 @@ public class MongoCpe {
 	{
 		this.content = content;
 		setXml("");
-	}
-	
-	public InputStream getInputStream() throws IOException
-	{
-		if (xml.isEmpty()) {
-			ContentFile contentFile = new ContentFile();
-			contentFile.setContent(content);
-			return contentFile.getContentStream();
-		}
-		else
-		{
-			if (enconding == null || this.enconding.length() == 0) {
-				return OseUtils.strToInputStream(xml);
-			}
-			else {
-				return OseUtils.strToInputStream(xml,enconding);	
-			}
-		}
 	}
 
 	@Override

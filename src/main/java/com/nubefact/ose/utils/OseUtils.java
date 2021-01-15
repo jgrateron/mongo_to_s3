@@ -1,28 +1,20 @@
 package com.nubefact.ose.utils;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class OseUtils {
 
-	public static InputStream getDocumentBase64(String content) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public static InputStream strToInputStream(String xml, String string) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public static ByteArrayOutputStream InputStreamToOutputStream(InputStream in) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public static InputStream strToInputStream(String xml) {
-		// TODO Auto-generated method stub
-		return null;
+	public static Date strToDateTime(String fechaHora) {
+		SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		try 
+		{
+			return sd.parse(fechaHora);
+		} 
+		catch (ParseException e) {
+			throw new RuntimeException(e.getMessage(),e);
+		}
 	}
 
 }

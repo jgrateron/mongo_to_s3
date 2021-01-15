@@ -3,7 +3,6 @@ package com.nubefact.ose.entity.mongo;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Base64;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -11,9 +10,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.nubefact.ose.data.ContentFile;
-import com.nubefact.ose.utils.OseUtils;
 
 public class MongoCdrSunat{
 
@@ -102,22 +98,6 @@ public class MongoCdrSunat{
 				LOGGER.error("Generando ZIP para CdrSunat: " + this.cdrFileName +" Mensaje: " + e.getMessage());
 				return null;
 			}			
-		}
-	}
-	/**
-	 * 
-	 */
-	public InputStream getCdrInputStream() throws IOException
-	{
-		if (isBase64Content())
-		{
-			ContentFile contentFile = new ContentFile();
-			contentFile.setContent(cdrContent);
-			return contentFile.getContentStream();			
-		}
-		else
-		{
-			return OseUtils.strToInputStream(cdrContent,"UTF-8");			
 		}
 	}
 }
