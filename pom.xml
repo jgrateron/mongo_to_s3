@@ -38,6 +38,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>1.11.930</version>
+		</dependency>		
+		<dependency>
 			<groupId>com.nubefact</groupId>
 			<artifactId>nubefact-ose-dao</artifactId>
 			<systemPath>${basedir}/libs/nubefact-ose-dao-1.0.jar</systemPath>
