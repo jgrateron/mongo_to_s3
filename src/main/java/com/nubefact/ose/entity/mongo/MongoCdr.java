@@ -1,6 +1,8 @@
 package com.nubefact.ose.entity.mongo;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.Base64;
 import java.util.Date;
 import java.util.zip.ZipEntry;
@@ -83,5 +85,10 @@ public class MongoCdr {
 				return null;
 			}
 		}
+	}
+
+	public InputStream getZipInputStream() {		
+		byte[] decodedBytes = Base64.getDecoder().decode(getCdrZipBase64());
+		return new ByteArrayInputStream(decodedBytes);
 	}
 }

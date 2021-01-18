@@ -3,6 +3,7 @@ package com.nubefact.ose.entity.mongo;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Base64;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -99,5 +100,10 @@ public class MongoCdrSunat{
 				return null;
 			}			
 		}
+	}
+
+	public InputStream getCdrZipInputStream() {
+		byte[] decodedBytes = Base64.getDecoder().decode(getCdrSunatZipBase64());
+		return new ByteArrayInputStream(decodedBytes);
 	}
 }

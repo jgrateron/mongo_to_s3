@@ -1,5 +1,6 @@
 package com.nubefact.ose.entity.mongo;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -157,6 +158,15 @@ public class MongoCpe {
 		return "MongoCpe [id=" + id + ", idTicket=" + idTicket + ", ruc=" + ruc + ", nombreDoc=" + nombreDoc
 				+ ", enconding=" + enconding + ", fechaRecepcion=" + fechaRecepcion + ", fechaRespuesta="
 				+ fechaRespuesta + ", estado=" + estado + ", estatusEnvioSunat=" + estatusEnvioSunat + "]";
+	}
+
+	public InputStream getZipInputStream() {
+		byte[] decodedBytes = Base64.getDecoder().decode(getCpeZipBase64());
+		return new ByteArrayInputStream(decodedBytes);
+	}
+
+	public String getRuc() {
+		return ruc;
 	}
 
 

@@ -3,6 +3,7 @@ package com.nubefact.ose.service.impl;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.Semaphore;
 
 import org.bson.internal.Base64;
 import org.slf4j.Logger;
@@ -22,7 +23,8 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 	private static final Logger logger = LoggerFactory.getLogger(SaveDocumentToDisk.class);	
 	private Ticket ticket;
 	private MongoCpe mongoCpe; 
-
+	private Semaphore mutex;
+	
 	@Override
 	public void run() 
 	{
@@ -34,9 +36,10 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 			saveCdrSunat();
 			Thread.sleep(0);
 		} 
-		catch (IOException | InterruptedException e) {
+		catch (Exception e) {
 			e.printStackTrace();
-		}		
+		}
+		mutex.release();
 	}
 
 	@Override
@@ -89,6 +92,12 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 		byte[] strToBytes = Base64.decode(zipbase64);
 		outputStream.write(strToBytes);
 		outputStream.close();
+	}
+
+	@Override
+	public void setMutex(Semaphore mutex) 
+	{
+		this.mutex = mutex;
 	}
 
 }
