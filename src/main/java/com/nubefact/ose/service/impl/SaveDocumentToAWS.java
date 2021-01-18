@@ -43,15 +43,15 @@ public class SaveDocumentToAWS implements ISaveDocuments {
 	@Override
 	public void run() 
 	{
-		logger.debug("save " + ticket.getNombreDoc());
 		try 
 		{
+			logger.debug("save " + ticket.getNombreDoc());			
 			saveCpe();
 			saveCdr();
 			saveCdrSunat();			
 		} 
-		catch (IOException e) {
-			e.printStackTrace();
+		catch (Exception e) {
+			logger.error(ticket.getNombreDoc() + " " + e.getMessage());
 		}
 		mutex.release();
 	}

@@ -34,10 +34,9 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 			saveCpe();
 			saveCdr();
 			saveCdrSunat();
-			Thread.sleep(0);
 		} 
 		catch (Exception e) {
-			e.printStackTrace();
+			logger.error(ticket.getNombreDoc() + " " + e.getMessage());
 		}
 		mutex.release();
 	}
