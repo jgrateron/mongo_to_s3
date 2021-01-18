@@ -7,6 +7,7 @@ import java.util.concurrent.Semaphore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.task.TaskExecutor;
@@ -36,15 +37,21 @@ public class SaveDocuments {
     @Autowired
     private TaskExecutor threadPoolTaskExecutor;    
     
+	@Value("${ose.fecha_ini}")
+	private String fecha_ini;
+	
+	@Value("${ose.fecha_fin}")
+	private String fecha_fin;
+	
     private Semaphore mutex = new Semaphore(0);
     
 	public void run()
 	{
-		Date fechaInicio = OseUtils.strToDateTime("2021-01-18 00:00:00");
-		Date fechaFin = OseUtils.strToDateTime("2021-01-18 23:59:59");
+		Date fechaIni = OseUtils.strToDateTime(fecha_ini + " 00:00:00");
+		Date fechaFin = OseUtils.strToDateTime(fecha_fin + " 23:59:59");
 		long startTime = System.nanoTime();
 		
-		List<Ticket> tickets = ticketDAO.getTickets(fechaInicio, fechaFin);
+		List<Ticket> tickets = ticketDAO.getTickets(fechaIni, fechaFin);
 		
 		for (Ticket ticket : tickets)
 		{

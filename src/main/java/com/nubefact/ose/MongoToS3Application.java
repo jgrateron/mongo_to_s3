@@ -25,8 +25,5 @@ public class MongoToS3Application implements CommandLineRunner{
 	public void run(String... args) throws Exception 
 	{
 		saveDocuments.run();
-		
 	}
-
-
 }
