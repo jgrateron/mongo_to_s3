@@ -5,19 +5,52 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.bson.internal.Base64;
-import org.springframework.stereotype.Service;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import com.nubefact.ose.entity.Ticket;
 import com.nubefact.ose.entity.mongo.MongoCdr;
 import com.nubefact.ose.entity.mongo.MongoCdrSunat;
 import com.nubefact.ose.entity.mongo.MongoCpe;
 import com.nubefact.ose.service.ISaveDocuments;
 
-@Service("SaveDocumentToDisk")
+@Component("SaveDocumentToDisk")
+@Scope("prototype")
 public class SaveDocumentToDisk implements ISaveDocuments {
 
+	private static final Logger logger = LoggerFactory.getLogger(SaveDocumentToDisk.class);	
+	private Ticket ticket;
+	private MongoCpe mongoCpe; 
+
 	@Override
-	public void saveCpe(MongoCpe mongoCpe, Ticket ticket) throws IOException {
+	public void run() 
+	{
+		try 
+		{
+			logger.debug("save " + ticket.getNombreDoc());
+			saveCpe();
+			saveCdr();
+			saveCdrSunat();
+			Thread.sleep(0);
+		} 
+		catch (IOException | InterruptedException e) {
+			e.printStackTrace();
+		}		
+	}
+
+	@Override
+	public void setMongoCpe(MongoCpe mongoCpe) {
+		this.mongoCpe = mongoCpe;
+	}
+
+	@Override
+	public void setTicket(Ticket ticket) {
+		this.ticket = ticket;
+	}
+
+	@Override
+	public void saveCpe() throws IOException {
 		String path = "/tmp/cpe/" + ticket.getNumRuc() + "/";
 		File file = new File(path);
 		file.mkdir();
@@ -27,8 +60,8 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 	}
 
 	@Override
-	public void saveCdr(MongoCdr mongoCdr, Ticket ticket) throws IOException 
-	{
+	public void saveCdr() throws IOException {
+		MongoCdr mongoCdr = mongoCpe.getMongoCdr();
 		String path = "/tmp/cdr/" + ticket.getNumRuc() + "/";
 		File file = new File(path);
 		file.mkdir();
@@ -38,7 +71,8 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 	}
 
 	@Override
-	public void saveCdrSunat(MongoCdrSunat mongoCdrSunat, Ticket ticket) throws IOException {
+	public void saveCdrSunat() throws IOException {
+		MongoCdrSunat mongoCdrSunat = mongoCpe.getMongoCdrSunat();
 		if (mongoCdrSunat != null)
 		{
 			String zipbase64 = mongoCdrSunat.getCdrSunatZipBase64();
