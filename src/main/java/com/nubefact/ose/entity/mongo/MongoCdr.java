@@ -57,6 +57,8 @@ public class MongoCdr {
 	}
 	
 	public String getContent() {
+		this.content = this.content.replaceAll("\\n", "");
+		this.content = this.content.replaceAll("\\r", "");  
 		return content;
 	}
 	

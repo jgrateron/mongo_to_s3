@@ -74,6 +74,8 @@ public class MongoCpe {
 	public String getCpeZipBase64()
 	{
 		if (xml.isEmpty()) {
+			this.content = this.content.replaceAll("\\n", "");
+			this.content = this.content.replaceAll("\\r", "");			
 			return content;
 		}
 		else

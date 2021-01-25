@@ -60,6 +60,8 @@ public class MongoCdrSunat{
 	}
 
 	public String getCdrContent() {
+		this.cdrContent = this.cdrContent.replaceAll("\\n", "");
+		this.cdrContent = this.cdrContent.replaceAll("\\r", "");  
 		return cdrContent;
 	}
 
