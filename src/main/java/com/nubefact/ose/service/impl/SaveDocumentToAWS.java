@@ -51,6 +51,7 @@ public class SaveDocumentToAWS implements ISaveDocuments {
 			saveCdrSunat();			
 		} 
 		catch (Exception e) {
+			e.printStackTrace();
 			logger.error(ticket.getNombreDoc() + " " + e.getMessage());
 		}
 		mutex.release();
