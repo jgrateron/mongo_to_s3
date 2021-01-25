@@ -51,7 +51,6 @@ public class SaveDocumentToAWS implements ISaveDocuments {
 			saveCdrSunat();			
 		} 
 		catch (Exception e) {
-			e.printStackTrace();
 			logger.error(ticket.getNombreDoc() + " " + e.getMessage());
 		}
 		mutex.release();
@@ -71,7 +70,8 @@ public class SaveDocumentToAWS implements ISaveDocuments {
 	public void saveCpe() throws IOException 
 	{
 		String pathRuc = mongoCpe.getRuc() + "/";
-		try(InputStream isXml = mongoCpe.getZipInputStream()){			
+		try(InputStream isXml = mongoCpe.getZipInputStream()){	
+			
 			savefile(isXml,PATHCPE + pathRuc + mongoCpe.getNombreDoc());
 		}		
 	}
@@ -107,6 +107,7 @@ public class SaveDocumentToAWS implements ISaveDocuments {
 	
 	private void savefile(InputStream is, String key) throws IOException
 	{
+		logger.debug("guardando en amazon " + key);
     	ObjectMetadata metadata = new ObjectMetadata();
     	metadata.setContentType(CONTENTTYPE);
     	metadata.setContentLength(is.available());
