@@ -12,8 +12,8 @@ public class ThreadConfig
     public TaskExecutor threadPoolTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(10);
-        executor.setMaxPoolSize(15);
-        executor.setThreadNamePrefix("task");
+        executor.setMaxPoolSize(20);
+        executor.setThreadNamePrefix("task-");
         executor.initialize();
         return executor;
     }

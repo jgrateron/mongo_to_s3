@@ -18,6 +18,6 @@ export AWS_S3PWD=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
 export AWS_S3URL=https://s3.nubefact.com
 
 export FECHA_INI=2021-01-01
-export FECHA_FIN=2021-12-31
+export FECHA_FIN=2021-01-31
 
 mvn spring-boot:run

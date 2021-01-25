@@ -51,26 +51,31 @@ public class SaveDocuments {
 		Date fechaFin = OseUtils.strToDateTime(fecha_fin + " 23:59:59");
 		long startTime = System.nanoTime();
 		
-		List<Ticket> tickets = ticketDAO.getTickets(fechaIni, fechaFin);
-		
-		for (Ticket ticket : tickets)
+		Date start = fechaIni;
+		while (start.before(fechaFin)) 
 		{
-			MongoCpe mongoCpe = mongoCpeDAO.getByIdTicket(ticket.getId());
-			ISaveDocuments saveDocuments = applicationContext.getBean(SaveDocumentToAWS.class);
-			saveDocuments.setMongoCpe(mongoCpe);
-			saveDocuments.setTicket(ticket);
-			saveDocuments.setMutex(mutex);
-			threadPoolTaskExecutor.execute(saveDocuments);
-		}
-		logger.debug("Total: " + tickets.size());
-		for (int i = 0; i < tickets.size(); i++)
-		{
-			try 
+			Date end = OseUtils.incDate(start);
+			List<Ticket> tickets = ticketDAO.getTickets(start, end);
+			logger.info(start + " Total: " + tickets.size());
+			for (Ticket ticket : tickets)
 			{
-				mutex.acquire();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				MongoCpe mongoCpe = mongoCpeDAO.getByIdTicket(ticket.getId());
+				ISaveDocuments saveDocuments = applicationContext.getBean(SaveDocumentToAWS.class);
+				saveDocuments.setMongoCpe(mongoCpe);
+				saveDocuments.setTicket(ticket);
+				saveDocuments.setMutex(mutex);
+				threadPoolTaskExecutor.execute(saveDocuments);
 			}
+			for (int i = 0; i < tickets.size(); i++)
+			{
+				try 
+				{
+					mutex.acquire();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+			start = end;
 		}
 		OseUtils.tiempoDuracion(startTime,"");
 		((ConfigurableApplicationContext)applicationContext).close();

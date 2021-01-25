@@ -45,7 +45,7 @@ public class SaveDocumentToAWS implements ISaveDocuments {
 	{
 		try 
 		{
-			logger.debug("save " + ticket.getNombreDoc());			
+			logger.debug("save " + ticket.getNombreDoc() + " | " + ticket.getFechaRecepcionXml());			
 			saveCpe();
 			saveCdr();
 			saveCdrSunat();			

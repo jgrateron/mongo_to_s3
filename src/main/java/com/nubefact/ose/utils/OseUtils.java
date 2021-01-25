@@ -2,6 +2,7 @@ package com.nubefact.ose.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 import org.slf4j.Logger;
@@ -29,5 +30,13 @@ public class OseUtils {
 			long duration = endTime - startTime;  //divide by 1000000 to get milliseconds.			
 			logger.debug("Tiempo de duracion " + mensaje + ": " + duration /1000000);
 		}
+	}
+	
+	public static Date incDate(Date dt)
+	{
+		Calendar c = Calendar.getInstance();
+		c.setTime(dt);
+		c.add(Calendar.DATE, 1);
+		return c.getTime();
 	}
 }
