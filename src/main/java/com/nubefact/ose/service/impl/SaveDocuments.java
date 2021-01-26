@@ -60,6 +60,8 @@ public class SaveDocuments {
 			Date end = OseUtils.incDate(start);
 			List<Ticket> tickets = ticketDAO.getTickets(start, end);
 			logger.info(start + " Total: " + tickets.size());
+			int cuantos = 0;
+			int total = 0;
 			for (Ticket ticket : tickets)
 			{
 				MongoCpe mongoCpe = mongoCpeDAO.getByIdTicket(ticket.getId());
@@ -70,29 +72,41 @@ public class SaveDocuments {
 				else {
 					saveDocuments = applicationContext.getBean(SaveDocumentToDisk.class);
 				}
+				cuantos++;
+				total++;
 				saveDocuments.setMongoCpe(mongoCpe);
 				saveDocuments.setTicket(ticket);
 				saveDocuments.setMutex(mutex);
 				threadPoolTaskExecutor.execute(saveDocuments);
-			}
-			int cuantos = 0;
-			for (int i = 0; i < tickets.size(); i++)
-			{ 
-				try 
+				if (cuantos == 20) 
 				{
+					for (int i = 0; i < 10; i++)
+					{
+						try 
+						{
+							mutex.acquire();
+							if (total % 10000 == 0) {
+								logger.info("guardando " + total + " documentos");
+							}
+							if (total % 100000 == 0) {
+								OseUtils.systemInformation();
+							}							
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						cuantos --;
+					}
+				}
+			}
+			for (int i = 0; i < cuantos; i++)
+			{
+				try {
 					mutex.acquire();
-					cuantos++;
-					if (cuantos % 10000 == 0) {
-						logger.info("guardando " + cuantos + " documentos");
-					}
-					if (cuantos % 100000 == 0) {
-						OseUtils.systemInformation();
-					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-			logger.info(start + " guardados " + cuantos + " documentos");
+			logger.info(start + " guardados " + total + " documentos");
 			OseUtils.systemInformation();
 			start = end;
 		}
