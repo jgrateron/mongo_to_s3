@@ -83,7 +83,7 @@ public class SaveDocuments {
 					mutex.acquire();
 					cuantos++;
 					if (cuantos % 10000 == 0) {
-						logger.info("guardando " + i + " documentos");
+						logger.info("guardando " + cuantos + " documentos");
 					}
 					if (cuantos % 100000 == 0) {
 						OseUtils.systemInformation();
@@ -92,6 +92,8 @@ public class SaveDocuments {
 					e.printStackTrace();
 				}
 			}
+			logger.info(start + " guardados " + cuantos + " documentos");
+			OseUtils.systemInformation();
 			start = end;
 		}
 		OseUtils.tiempoDuracion(startTime,"");
