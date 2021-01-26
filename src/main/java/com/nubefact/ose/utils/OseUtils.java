@@ -39,4 +39,19 @@ public class OseUtils {
 		c.add(Calendar.DATE, 1);
 		return c.getTime();
 	}
+	
+    public static void systemInformation()
+    {
+		long heap = Runtime.getRuntime().totalMemory();    
+		// y aca el max del heap disponible en esta jvm
+		long heapMax = Runtime.getRuntime().maxMemory();
+		// y aca finalmente lo que esta libre
+		long heapFree = Runtime.getRuntime().freeMemory();
+		if (logger.isInfoEnabled())
+		{
+			logger.info("Heap " + (heap /1024)/1024 + " MB");
+			logger.info("Heapmax " + (heapMax / 1024)/1024 + " MB");
+			logger.info("heapFree " + (heapFree /1024)/1024 + " MB");			
+		}
+    }	
 }

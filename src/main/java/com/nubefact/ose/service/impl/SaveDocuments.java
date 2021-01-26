@@ -75,13 +75,18 @@ public class SaveDocuments {
 				saveDocuments.setMutex(mutex);
 				threadPoolTaskExecutor.execute(saveDocuments);
 			}
+			int cuantos = 0;
 			for (int i = 0; i < tickets.size(); i++)
-			{
+			{ 
 				try 
 				{
 					mutex.acquire();
-					if (i % 100000 == 0) {
+					cuantos++;
+					if (cuantos % 10000 == 0) {
 						logger.info("guardando " + i + " documentos");
+					}
+					if (cuantos % 100000 == 0) {
+						OseUtils.systemInformation();
 					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
