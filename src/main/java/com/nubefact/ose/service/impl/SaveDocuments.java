@@ -90,18 +90,18 @@ public class SaveDocuments {
 						try 
 						{
 							mutex.acquire();
-							if (total % 10000 == 0) {
-								logger.info("guardando " + total + " documentos");
-							}
-							if (total % 100000 == 0) {
-								OseUtils.systemInformation();
-							}							
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
 						cuantos --;
 					}
 				}
+				if (total % 10000 == 0) {
+					logger.info("guardando " + total + " documentos");
+				}
+				if (total % 100000 == 0) {
+					OseUtils.systemInformation();
+				}											
 			}
 			for (int i = 0; i < cuantos; i++)
 			{
