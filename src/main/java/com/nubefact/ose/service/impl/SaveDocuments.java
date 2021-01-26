@@ -69,8 +69,13 @@ public class SaveDocuments {
 				if ("AWS".equals(save_to)) {
 					saveDocuments = applicationContext.getBean(SaveDocumentToAWS.class); 
 				}
-				else {
+				else
+				if ("DISK".equals(save_to)) {
 					saveDocuments = applicationContext.getBean(SaveDocumentToDisk.class);
+				}
+				else
+				if ("NULL".equals(save_to)) {
+					saveDocuments = applicationContext.getBean(SaveDocumentToNull.class);
 				}
 				cuantos++;
 				total++;
