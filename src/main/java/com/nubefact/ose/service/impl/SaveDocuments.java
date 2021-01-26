@@ -42,6 +42,9 @@ public class SaveDocuments {
 	
 	@Value("${ose.fecha_fin}")
 	private String fecha_fin;
+
+	@Value("${ose.save_to}")
+	private String save_to;
 	
     private Semaphore mutex = new Semaphore(0);
     
@@ -60,7 +63,13 @@ public class SaveDocuments {
 			for (Ticket ticket : tickets)
 			{
 				MongoCpe mongoCpe = mongoCpeDAO.getByIdTicket(ticket.getId());
-				ISaveDocuments saveDocuments = applicationContext.getBean(SaveDocumentToAWS.class);
+				ISaveDocuments saveDocuments = null;
+				if ("AWS".equals(save_to)) {
+					saveDocuments = applicationContext.getBean(SaveDocumentToAWS.class); 
+				}
+				else {
+					saveDocuments = applicationContext.getBean(SaveDocumentToDisk.class);
+				}
 				saveDocuments.setMongoCpe(mongoCpe);
 				saveDocuments.setTicket(ticket);
 				saveDocuments.setMutex(mutex);
@@ -71,6 +80,9 @@ public class SaveDocuments {
 				try 
 				{
 					mutex.acquire();
+					if (i % 100000 == 0) {
+						logger.info("guardando " + i + " documentos");
+					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
