@@ -13,8 +13,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
+import com.nubefact.ose.dao.IMigradoDAO;
 import com.nubefact.ose.dao.IMongoCpeDAO;
-import com.nubefact.ose.dao.ITicketDAO;
+import com.nubefact.ose.entity.Migrado;
 import com.nubefact.ose.entity.Ticket;
 import com.nubefact.ose.entity.mongo.MongoCpe;
 import com.nubefact.ose.service.ISaveDocuments;
@@ -29,7 +30,7 @@ public class SaveDocuments {
 	private IMongoCpeDAO mongoCpeDAO;
 	
 	@Autowired
-	private ITicketDAO ticketDAO;
+	private IMigradoDAO migradoS3DAO;
 	
     @Autowired
     private ApplicationContext applicationContext;
@@ -58,12 +59,17 @@ public class SaveDocuments {
 		while (start.before(fechaFin)) 
 		{
 			Date end = OseUtils.incDate(start);
-			List<Ticket> tickets = ticketDAO.getTickets(start, end);
-			logger.info(start + " Total: " + tickets.size());
+			List<Migrado> registros = migradoS3DAO.getRegistros(start, end);
+			logger.info(start + " Total: " + registros.size());
 			int cuantos = 0;
 			int total = 0;
-			for (Ticket ticket : tickets)
+			for (Migrado migrado : registros)
 			{
+				if (migrado.isCpe() && migrado.isCdr_ose() && migrado.isCdr_sunat()) {
+					//si está completamente migrado, pasar al siguiente 
+					continue;
+				}
+				Ticket ticket = migrado.getTicket();
 				MongoCpe mongoCpe = mongoCpeDAO.getByIdTicket(ticket.getId());
 				ISaveDocuments saveDocuments = null;
 				if ("AWS".equals(save_to)) {
@@ -79,6 +85,7 @@ public class SaveDocuments {
 				}
 				cuantos++;
 				total++;
+				saveDocuments.setMigrado(migrado);
 				saveDocuments.setMongoCpe(mongoCpe);
 				saveDocuments.setTicket(ticket);
 				saveDocuments.setMutex(mutex);
@@ -98,10 +105,7 @@ public class SaveDocuments {
 				}
 				if (total % 10000 == 0) {
 					logger.info("guardando " + total + " documentos");
-				}
-				if (total % 100000 == 0) {
-					OseUtils.systemInformation();
-				}											
+				}										
 			}
 			for (int i = 0; i < cuantos; i++)
 			{
@@ -112,7 +116,6 @@ public class SaveDocuments {
 				}
 			}
 			logger.info(start + " guardados " + total + " documentos");
-			OseUtils.systemInformation();
 			start = end;
 		}
 		OseUtils.tiempoDuracion(startTime,"");

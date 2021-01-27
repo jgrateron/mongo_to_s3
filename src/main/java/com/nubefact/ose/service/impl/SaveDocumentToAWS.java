@@ -13,6 +13,8 @@ import org.springframework.stereotype.Component;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.nubefact.ose.dao.IMigradoDAO;
+import com.nubefact.ose.entity.Migrado;
 import com.nubefact.ose.entity.Ticket;
 import com.nubefact.ose.entity.mongo.MongoCdrSunat;
 import com.nubefact.ose.entity.mongo.MongoCpe;
@@ -22,7 +24,8 @@ import com.nubefact.ose.service.ISaveDocuments;
 @Scope("prototype")
 public class SaveDocumentToAWS implements ISaveDocuments {
 
-	private static final Logger logger = LoggerFactory.getLogger(SaveDocumentToAWS.class);	
+	private static final Logger logger = LoggerFactory.getLogger(SaveDocumentToAWS.class);
+	private Migrado migrado;
 	private Ticket ticket;
 	private MongoCpe mongoCpe; 
 	private Semaphore mutex;
@@ -33,24 +36,38 @@ public class SaveDocumentToAWS implements ISaveDocuments {
 	@Value("${ose.bucket_name}")
 	private String bucket_name;
 	
+	@Autowired
+	private IMigradoDAO migradoS3DAO;
+	
 	private static String PATHCPE = "cpe/";
 	private static String PATHCDR = "cdr/";
 	private static String PATHSUNAT = "sunat/";
 	private static String PREFIXCDR = "R-";
 	private static String CONTENTTYPE= "application/zip" ;
 	private static String EXTZIP = ".zip";
+	private boolean update = false;
 	
 	@Override
 	public void run() 
 	{
 		try 
 		{
-			logger.debug("save " + ticket.getNombreDoc() + " | " + ticket.getFechaRecepcionXml());			
-			saveCpe();
-			saveCdr();
-			saveCdrSunat();			
+			logger.debug("save " + ticket.getNombreDoc() + " | " + ticket.getFechaRecepcionXml());
+			if (!migrado.isCpe()) {
+				saveCpe();
+			}
+			if (!migrado.isCdr_ose()) {
+				saveCdr();
+			}
+			if (!migrado.isCdr_sunat()) {
+				saveCdrSunat();
+			}
+			if (update) {
+				migradoS3DAO.update(migrado);
+			}
 		} 
 		catch (Exception e) {
+			e.printStackTrace();
 			logger.error(ticket.getNombreDoc() + " " + e.getMessage());
 		}
 		mutex.release();
@@ -73,6 +90,8 @@ public class SaveDocumentToAWS implements ISaveDocuments {
 		try(InputStream isXml = mongoCpe.getZipInputStream()){	
 			
 			savefile(isXml,PATHCPE + pathRuc + mongoCpe.getNombreDoc());
+			migrado.setCpe(true);
+			update = true;
 		}		
 	}
 
@@ -82,6 +101,8 @@ public class SaveDocumentToAWS implements ISaveDocuments {
 		String pathRuc = mongoCpe.getRuc() + "/";
     	try (InputStream isCdr = mongoCpe.getMongoCdr().getZipInputStream()){
     		savefile(isCdr,PATHCDR + pathRuc + PREFIXCDR + mongoCpe.getNombreDoc());
+			migrado.setCdr_ose(true);
+			update = true;
     	}		
 	}
 
@@ -96,6 +117,8 @@ public class SaveDocumentToAWS implements ISaveDocuments {
 			String pathRuc = mongoCpe.getRuc() + "/";
 			try(InputStream isCdr = mongoCdrSunat.getCdrZipInputStream()){
 				savefile(isCdr, PATHSUNAT + pathRuc + nameCdr);
+				migrado.setCdr_sunat(true);
+				update = true;
 			}
 		}		
 	}
@@ -112,5 +135,10 @@ public class SaveDocumentToAWS implements ISaveDocuments {
     	metadata.setContentType(CONTENTTYPE);
     	metadata.setContentLength(is.available());
     	amazonS3.putObject(bucket_name,key,is,metadata);		
+	}
+
+	@Override
+	public void setMigrado(Migrado migrado) {
+		this.migrado = migrado;		
 	}	
 }

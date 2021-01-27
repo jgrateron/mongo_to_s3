@@ -6,6 +6,7 @@ import java.util.concurrent.Semaphore;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.nubefact.ose.entity.Migrado;
 import com.nubefact.ose.entity.Ticket;
 import com.nubefact.ose.entity.mongo.MongoCpe;
 import com.nubefact.ose.service.ISaveDocuments;
@@ -55,6 +56,12 @@ public class SaveDocumentToNull implements ISaveDocuments {
 	public void saveCdrSunat() throws IOException {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public void setMigrado(Migrado migrado) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

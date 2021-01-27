@@ -8,8 +8,12 @@ import java.util.concurrent.Semaphore;
 import org.bson.internal.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import com.nubefact.ose.dao.IMigradoDAO;
+import com.nubefact.ose.entity.Migrado;
 import com.nubefact.ose.entity.Ticket;
 import com.nubefact.ose.entity.mongo.MongoCdr;
 import com.nubefact.ose.entity.mongo.MongoCdrSunat;
@@ -20,20 +24,31 @@ import com.nubefact.ose.service.ISaveDocuments;
 @Scope("prototype")
 public class SaveDocumentToDisk implements ISaveDocuments {
 
-	private static final Logger logger = LoggerFactory.getLogger(SaveDocumentToDisk.class);	
+	private static final Logger logger = LoggerFactory.getLogger(SaveDocumentToDisk.class);
+	private Migrado migrado;
 	private Ticket ticket;
 	private MongoCpe mongoCpe; 
 	private Semaphore mutex;
+	
+	@Autowired
+	private IMigradoDAO migradoS3DAO;
 	
 	@Override
 	public void run() 
 	{
 		try 
 		{
-			logger.debug("save " + ticket.getNombreDoc());
-			saveCpe();
-			saveCdr();
-			saveCdrSunat();
+			logger.debug("save " + ticket.getNombreDoc() + " | " + ticket.getFechaRecepcionXml());
+			if (!migrado.isCpe()) {
+				saveCpe();
+			}
+			if (!migrado.isCdr_ose()) {
+				saveCdr();
+			}
+			if (!migrado.isCdr_sunat()) {
+				saveCdrSunat();
+			}
+			migradoS3DAO.update(migrado);
 		} 
 		catch (Exception e) {
 			logger.error(ticket.getNombreDoc() + " " + e.getMessage());
@@ -59,6 +74,7 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 		String zipbase64 = mongoCpe.getCpeZipBase64();
 		String fileName = path + ticket.getNombreDoc() + ".zip";
 		saveFile(fileName,zipbase64);
+		migrado.setCpe(true);
 	}
 
 	@Override
@@ -70,6 +86,7 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 		String zipbase64 = mongoCdr.getCdrZipBase64();
 		String fileName = path + "R-" + ticket.getNombreDoc() + ".zip";
 		saveFile(fileName,zipbase64);
+		migrado.setCdr_ose(true);
 	}
 
 	@Override
@@ -82,7 +99,8 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 			File file = new File(path);
 			file.mkdir();
 			String fileName = path + "/R-" + ticket.getNombreDoc() + ".zip";
-			saveFile(fileName,zipbase64);				
+			saveFile(fileName,zipbase64);
+			migrado.setCdr_sunat(true);
 		}
 	}
 
@@ -99,4 +117,8 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 		this.mutex = mutex;
 	}
 
+	@Override
+	public void setMigrado(Migrado migrado) {
+		this.migrado = migrado;		
+	}
 }
