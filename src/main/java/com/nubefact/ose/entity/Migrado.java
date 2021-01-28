@@ -15,7 +15,7 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name="ose_migrado", indexes = {@Index(columnList = "fecha_recepcion_xml")})
+@Table(name="ose_migrado", indexes = {@Index(columnList = "fecha_recepcion_xml"), @Index (columnList = "id_ticket",unique = true)})
 public class Migrado {
 
 	@Id

@@ -29,6 +29,7 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 	private Ticket ticket;
 	private MongoCpe mongoCpe; 
 	private Semaphore mutex;
+	private boolean update = false;
 	
 	@Autowired
 	private IMigradoDAO migradoS3DAO;
@@ -48,7 +49,9 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 			if (!migrado.isCdr_sunat()) {
 				saveCdrSunat();
 			}
-			migradoS3DAO.update(migrado);
+			if (update) {
+				migradoS3DAO.update(migrado);
+			}
 		} 
 		catch (Exception e) {
 			logger.error(ticket.getNombreDoc() + " " + e.getMessage());
@@ -75,6 +78,7 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 		String fileName = path + ticket.getNombreDoc() + ".zip";
 		saveFile(fileName,zipbase64);
 		migrado.setCpe(true);
+		update = true;
 	}
 
 	@Override
@@ -87,6 +91,7 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 		String fileName = path + "R-" + ticket.getNombreDoc() + ".zip";
 		saveFile(fileName,zipbase64);
 		migrado.setCdr_ose(true);
+		update = true;
 	}
 
 	@Override
@@ -101,6 +106,7 @@ public class SaveDocumentToDisk implements ISaveDocuments {
 			String fileName = path + "/R-" + ticket.getNombreDoc() + ".zip";
 			saveFile(fileName,zipbase64);
 			migrado.setCdr_sunat(true);
+			update = true;
 		}
 	}
 
