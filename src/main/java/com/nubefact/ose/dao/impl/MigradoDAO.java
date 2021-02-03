@@ -24,7 +24,7 @@ public class MigradoDAO implements IMigradoDAO {
 	public List<Migrado> getRegistros(Date fechaInicio, Date fechaFin) {
 		List<?> list = entityManager
 				.createQuery("SELECT DISTINCT(m) FROM Migrado m JOIN FETCH m.ticket WHERE m.fechaRecepcionXml >= :fechaInicio and m.fechaRecepcionXml <= :fechaFin " +
-						     "ORDER BY m.id")
+						     "AND (cpe = false or cdr_ose = false or cdr_sunat = false) ORDER BY m.id")
 				.setParameter("fechaInicio", fechaInicio)
 				.setParameter("fechaFin", fechaFin)
 				.getResultList();
