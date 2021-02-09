@@ -98,7 +98,7 @@ public class SaveDocuments {
 				threadPoolTaskExecutor.execute(saveDocuments);
 				if (cuantos == maxThread) 
 				{
-					for (int i = 0; i < minThread; i++)
+					for (int i = 0; i < (maxThread - minThread); i++)
 					{
 						try 
 						{
