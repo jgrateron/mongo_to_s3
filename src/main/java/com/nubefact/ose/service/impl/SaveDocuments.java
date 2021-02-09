@@ -47,6 +47,12 @@ public class SaveDocuments {
 	@Value("${ose.save_to}")
 	private String save_to;
 	
+	@Value("${ose.min_thread}")
+	private Integer minThread;
+
+	@Value("${ose.min_thread}")
+	private Integer maxThread;
+	
     private Semaphore mutex = new Semaphore(0);
     
 	public void run()
@@ -83,16 +89,16 @@ public class SaveDocuments {
 				if ("NULL".equals(save_to)) {
 					saveDocuments = applicationContext.getBean(SaveDocumentToNull.class);
 				}
-				cuantos++;
+				cuantos++;	
 				total++;
 				saveDocuments.setMigrado(migrado);
 				saveDocuments.setMongoCpe(mongoCpe);
 				saveDocuments.setTicket(ticket);
 				saveDocuments.setMutex(mutex);
 				threadPoolTaskExecutor.execute(saveDocuments);
-				if (cuantos == 20) 
+				if (cuantos == maxThread) 
 				{
-					for (int i = 0; i < 10; i++)
+					for (int i = 0; i < minThread; i++)
 					{
 						try 
 						{
@@ -100,7 +106,7 @@ public class SaveDocuments {
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-						cuantos --;
+						cuantos --;	
 					}
 				}
 				if (total % 10000 == 0) {
